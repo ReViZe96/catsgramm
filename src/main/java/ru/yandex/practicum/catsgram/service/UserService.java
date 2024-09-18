@@ -69,6 +69,15 @@ public class UserService {
         throw new NotFoundException("Пользователь с id = " + user.getId() + " не найден");
     }
 
+    public User getById(Long id) {
+        Optional<User> user = findUserById(id);
+        if (user.isEmpty()) {
+            throw new NotFoundException("Пользователь с id = " + id + " не найден");
+        } else {
+            return user.get();
+        }
+    }
+
     public Optional<User> findUserById(Long id) {
         return Optional.ofNullable(users.get(id));
     }
