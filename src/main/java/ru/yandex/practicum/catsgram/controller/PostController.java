@@ -3,7 +3,7 @@ package ru.yandex.practicum.catsgram.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
+import ru.yandex.practicum.catsgram.exception.ParameterNotValidException;
 import ru.yandex.practicum.catsgram.model.Post;
 import ru.yandex.practicum.catsgram.service.PostService;
 import ru.yandex.practicum.catsgram.service.SortOrder;
@@ -25,10 +25,17 @@ public class PostController {
     public List<Post> findAll(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "10") int size,
                               @RequestParam(defaultValue = "desc") String sort) {
-        if (size >= 0) {
-            return postService.findAll(page, size, SortOrder.from(sort));
+        if (SortOrder.from(sort) == null) {
+            throw new ParameterNotValidException("sort", "Переданное значение = " + sort +
+                    " не соответствует допустимым (asc, ascending или desc, descending");
+        }
+        if (size <= 0) {
+            throw new ParameterNotValidException("size", "Размер выборки должен быть больше нуля");
+        }
+        if (page < 0) {
+            throw new ParameterNotValidException("page", "Значение начальной позиции выборки должно быть больше нуля");
         } else {
-            throw new ConditionsNotMetException("Количество выводимых постов должно быть положительным числом");
+            return postService.findAll(page, size, SortOrder.from(sort));
         }
     }
 
