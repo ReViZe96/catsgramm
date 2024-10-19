@@ -3,8 +3,10 @@ package ru.yandex.practicum.catsgram.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.catsgram.dto.request.NewPostRequest;
+import ru.yandex.practicum.catsgram.dto.request.UpdatePostRequest;
+import ru.yandex.practicum.catsgram.dto.response.PostDto;
 import ru.yandex.practicum.catsgram.exception.ParameterNotValidException;
-import ru.yandex.practicum.catsgram.model.Post;
 import ru.yandex.practicum.catsgram.service.PostService;
 import ru.yandex.practicum.catsgram.service.SortOrder;
 
@@ -22,9 +24,9 @@ public class PostController {
     }
 
     @GetMapping
-    public List<Post> findAll(@RequestParam(defaultValue = "0") int page,
-                              @RequestParam(defaultValue = "10") int size,
-                              @RequestParam(defaultValue = "desc") String sort) {
+    public List<PostDto> getPosts(@RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "10") int size,
+                                  @RequestParam(defaultValue = "desc") String sort) {
         if (SortOrder.from(sort) == null) {
             throw new ParameterNotValidException("sort", "Переданное значение = " + sort +
                     " не соответствует допустимым (asc, ascending или desc, descending");
@@ -35,24 +37,24 @@ public class PostController {
         if (page < 0) {
             throw new ParameterNotValidException("page", "Значение начальной позиции выборки должно быть больше нуля");
         } else {
-            return postService.findAll(page, size, SortOrder.from(sort));
+            return postService.getPosts(page, size, SortOrder.from(sort));
         }
+    }
+
+    @GetMapping("/{postId}")
+    public PostDto getPostById(@PathVariable("postId") long postId) {
+        return postService.getPostById(postId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Post create(@RequestBody Post post) {
-        return postService.create(post);
+    public PostDto createPost(@RequestBody NewPostRequest postRequest) {
+        return postService.createPost(postRequest);
     }
 
-    @PutMapping
-    public Post update(@RequestBody Post newPost) {
-        return postService.update(newPost);
-    }
-
-    @GetMapping("/{id}")
-    public Post getById(@PathVariable Long id) {
-        return postService.getById(id);
+    @PutMapping("/{postId}")
+    public PostDto updatePost(@PathVariable("postId") long postId, @RequestBody UpdatePostRequest request) {
+        return postService.updatePost(postId, request);
     }
 
 }

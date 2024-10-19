@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.yandex.practicum.catsgram.model.Image;
+import ru.yandex.practicum.catsgram.dto.response.ImageDto;
 import ru.yandex.practicum.catsgram.model.ImageData;
 import ru.yandex.practicum.catsgram.service.ImageService;
 
@@ -16,15 +16,14 @@ public class ImageController {
     private final ImageService imageService;
 
     @GetMapping("/posts/{postId}/images")
-    public List<Image> getPostImages(@PathVariable("postId") long postId) {
+    public List<ImageDto> getPostImages(@PathVariable("postId") long postId) {
         return imageService.getPostImages(postId);
     }
 
     @PostMapping(value = "/posts/{postId}/images")
     @ResponseStatus(HttpStatus.CREATED)
-    public List<Image> saveImages(@PathVariable("postId") long postId, @RequestParam("images") List<MultipartFile> images) {
+    public List<ImageDto> saveImages(@PathVariable("postId") long postId, @RequestParam("images") List<MultipartFile> images) {
         return imageService.saveImages(postId, images);
-
     }
 
     @GetMapping(value = "/images/{imageId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -36,7 +35,6 @@ public class ImageController {
                         .filename(imageData.getName())
                         .build()
         );
-
         return new ResponseEntity<>(imageData.getData(), headers, HttpStatus.OK);
     }
 }
